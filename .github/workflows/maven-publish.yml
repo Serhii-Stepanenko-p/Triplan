@@ -1,0 +1,55 @@
+name: Triplan CI/CD Pipeline
+
+# 1. Коли запускати: при кожному push (зміні коду) в гілку main
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Дозволяє запускати вручну кнопку
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    # Дозволяємо цьому процесу створювати файли (релізи) в репозиторії
+    permissions:
+      contents: write
+
+    steps:
+    # Крок 1: Завантажуємо код з репозиторію
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Крок 2: Виводимо автора змін (Завдання 1.1)
+    - name: Print Author Information
+      run: |
+        echo "🚀 Pipeline started!"
+        echo "👤 Author of changes: ${{ github.actor }}"
+        echo "📅 Date: $(date)"
+
+    # Крок 3: Налаштовуємо Java (JDK 17)
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache:maven: true
+
+    # Крок 4: Збираємо проект (Build) (Завдання 1.2)
+    # Важливо: вказуємо working-directory: backend, бо твій pom.xml там
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+      working-directory: ./backend
+
+    # Крок 5: Створюємо Реліз на GitHub (Завдання 1.3)
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        # Ім'я тегу буде унікальним для кожного запуску (наприклад, build-15)
+        tag_name: build-${{ github.run_number }}
+        name: Release Build ${{ github.run_number }}
+        body: |
+          Автоматичний реліз від автора: ${{ github.actor }}
+          Зміни були внесені в backend частину.
+        files: backend/target/*.jar # Завантажуємо готовий файл (артефакт)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
