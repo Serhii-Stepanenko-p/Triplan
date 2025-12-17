@@ -37,7 +37,7 @@ jobs:
     # Крок 4: Збираємо проект (Build) (Завдання 1.2)
     # Важливо: вказуємо working-directory: backend, бо твій pom.xml там
     - name: Build with Maven
-      run: mvn clean package -DskipTests
+      run: mvn clean package -Dmaven.test.skip=true
       working-directory: ./backend
 
     # Крок 5: Створюємо Реліз на GitHub (Завдання 1.3)
