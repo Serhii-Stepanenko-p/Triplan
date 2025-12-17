@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
+// Створення моделі Trip для збереження в базі даних
 @Entity
 @Table(name = "trips")
 @Data
